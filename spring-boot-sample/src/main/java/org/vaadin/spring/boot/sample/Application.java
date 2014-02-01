@@ -34,6 +34,8 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.vaadin.spring.UIScope;
 import org.vaadin.spring.VaadinComponent;
@@ -51,10 +53,20 @@ import org.vaadin.spring.navigator.VaadinView;
  */
 @EnableAutoConfiguration
 @ComponentScan
-public class Application {
+public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class, args);
+    }
+
+    /* 
+     * This method (and extending SpringBootServletInitializer) is only needed 
+     * for making WAR file for servlet containers. For jar packaging (or 
+     * launching directly from IDE) this is not needed.
+     */
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(Application.class);
     }
 }
 

@@ -148,6 +148,12 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <packagingExcludes>WEB-INF/lib/tomcat-*.jar, WEB-INF/lib/jetty-*.jar</packagingExcludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     
