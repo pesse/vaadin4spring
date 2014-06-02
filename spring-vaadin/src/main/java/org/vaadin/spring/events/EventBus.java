@@ -49,6 +49,8 @@ package org.vaadin.spring.events;
  * </code>
  *
  * @author Petter Holmström (petter@vaadin.com)
+ * @see org.vaadin.spring.events.EventBus.AsyncEventBus
+ * @see org.vaadin.spring.events.EventBus.WeakEventBus
  */
 public interface EventBus {
 
@@ -145,4 +147,51 @@ public interface EventBus {
      */
     void unsubscribe(Object listener);
 
+    /**
+     * Extension of the {@link org.vaadin.spring.events.EventBus} interface that adds support
+     * for subscribing listeners using weak references. This makes it possible for e.g. prototype scoped beans
+     * to register themselves as listeners in the init method. As long as the beans are referenced somewhere else, they
+     * will remain subscribed to the event bus. Once they fall out of scope, they will be automatically unsubscribed
+     * during the next garbage collection.
+     */
+    interface WeakEventBus extends EventBus {
+
+        /**
+         * Same as {@link #subscribe(Object)}, but stores the listener using a weak reference.
+         */
+        void weakSubscribe(Object listener);
+
+        /**
+         * Same as {@link #subscribe(Object, boolean)}, but stores the listener using a weak reference.
+         */
+        void weakSubscribe(Object listener, boolean includingPropagatingEvents);
+
+        /**
+         * Same as {@link #subscribe(EventBusListener, boolean)}, but stores the listener using a weak reference.
+         */
+        <T> void weakSubscribe(EventBusListener<T> listener, boolean includingPropagatingEvents);
+
+        /**
+         * Same as {@link #subscribe(EventBusListener)}, but stores the listener using a weak reference.
+         */
+        <T> void weakSubscribe(EventBusListener<T> listener);
+    }
+
+    /**
+     * Extension of the {@link org.vaadin.spring.events.EventBus} interface that adds support for publishing
+     * events asynchronously. This means that the publish methods will return immediately and another thread will
+     * take care of notifying the listeners. Pay special attention to thread safety when using these methods!
+     */
+    interface AsyncEventBus extends EventBus {
+
+        /**
+         * Same as {@link #publish(Object, Object)}, but the listeners are notified asynchronously.
+         */
+        <T> void publishAsync(Object sender, T payload);
+
+        /**
+         * Same as {@link #publish(EventScope, Object, Object)}, but the listeners are notified asynchronously.
+         */
+        <T> void publishAsync(EventScope scope, Object sender, T payload) throws UnsupportedOperationException;
+    }
 }
