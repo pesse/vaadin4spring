@@ -15,6 +15,8 @@
  */
 package org.vaadin.spring.test;
 
+import com.vaadin.spring.annotation.VaadinUIScope;
+import com.vaadin.spring.navigator.annotation.VaadinViewScope;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +24,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.vaadin.spring.annotation.EnableVaadin;
+import org.vaadin.spring.annotation.EnableVaadin4Spring;
 import org.vaadin.spring.annotation.VaadinSessionScope;
-import org.vaadin.spring.annotation.VaadinUIScope;
 import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EnableVaadinEventBus;
-import org.vaadin.spring.events.annotation.EventBusScope;
 import org.vaadin.spring.test.annotation.VaadinAppConfiguration;
 
 import static org.junit.Assert.assertEquals;
@@ -50,14 +49,15 @@ public class ExampleIntegrationTest {
     @Autowired
     ExampleUIScopedObject exampleUIScopedObject;
     @Autowired
-    @EventBusScope(EventScope.APPLICATION)
-    EventBus applicationEvenBus;
+    ExampleViewScopedObject exampleViewScopedObject;
     @Autowired
-    @EventBusScope(EventScope.SESSION)
-    EventBus sessionEventBus;
+    EventBus.ApplicationEventBus applicationEvenBus;
     @Autowired
-    @EventBusScope(EventScope.UI)
-    EventBus uiEventBus;
+    EventBus.SessionEventBus sessionEventBus;
+    @Autowired
+    EventBus.UIEventBus uiEventBus;
+    @Autowired
+    EventBus.ViewEventBus viewEventBus;
 
     @Test
     public void testAutowiring() {
@@ -66,6 +66,7 @@ public class ExampleIntegrationTest {
         assertNotNull(applicationEvenBus);
         assertNotNull(sessionEventBus);
         assertNotNull(uiEventBus);
+        assertNotNull(viewEventBus);
     }
 
     @Test
@@ -95,8 +96,15 @@ public class ExampleIntegrationTest {
         assertEquals("Hello3", exampleUIScopedObject.lastReceivedEvent.getPayload());
     }
 
+    @Test
+    public void testViewEventBus() {
+        viewEventBus.publish(this, "Hello4");
+        assertSame(this, exampleViewScopedObject.lastReceivedEvent.getSource());
+        assertEquals("Hello4", exampleViewScopedObject.lastReceivedEvent.getPayload());
+    }
+
     @Configuration
-    @EnableVaadin
+    @EnableVaadin4Spring
     @EnableVaadinEventBus
     public static class Config {
 
@@ -104,6 +112,12 @@ public class ExampleIntegrationTest {
         @VaadinUIScope
         ExampleUIScopedObject exampleUIScopedObject() {
             return new ExampleUIScopedObject();
+        }
+
+        @Bean
+        @VaadinViewScope
+        ExampleViewScopedObject exampleViewScopedObject() {
+            return new ExampleViewScopedObject();
         }
 
         @Bean
