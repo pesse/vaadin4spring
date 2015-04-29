@@ -22,9 +22,11 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -35,6 +37,7 @@ import javax.annotation.PreDestroy;
  * @author Petter Holmström (petter@vaadin.com)
  */
 @SpringView(name = ViewScopedView.VIEW_NAME) // View scope is used by default
+@PreAuthorize("hasRole('ROLE_USER')")
 public class ViewScopedView extends VerticalLayout implements View {
 
     public static final String VIEW_NAME = "view";
